@@ -6,11 +6,11 @@ const props = defineProps<{ body: Body }>();
 
 <template>
     <div v-for="group in props.body" class="flex flex-col gap-[8px] text-xs page-break">
-        <div className="relative h-[20px]">
-            <div className="absolute bottom-0 left-0 h-[1px] w-full bg-neutral-300" />
-            <div className="absolute bottom-0 left-0 w-[110px] border-b-[24px] border-r-[6px] border-r-transparent border-neutral-300"></div>
-            <div className="absolute bottom-0 left-0 w-[98px] border-b-[28px] border-r-[7px] border-r-transparent border-neutral-800"></div>
-            <div className="absolute bottom-0 left-0 h-[28px] w-[86px] text-sm font-bold text-white flex justify-center items-center">
+        <div class="relative h-[20px]">
+            <div class="absolute bottom-0 left-0 h-[1px] w-full bg-neutral-300" />
+            <div class="absolute bottom-0 left-0 w-[110px] border-b-[24px] border-r-[6px] border-r-transparent border-neutral-300"></div>
+            <div class="absolute bottom-0 left-0 w-[98px] border-b-[28px] border-r-[7px] border-r-transparent border-neutral-800"></div>
+            <div class="absolute bottom-0 left-0 h-[28px] w-[86px] text-sm font-bold text-white flex justify-center items-center">
                 {{ group.title }}
             </div>
         </div>
