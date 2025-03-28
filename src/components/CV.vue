@@ -73,6 +73,10 @@ const adjustMargins = () => {
 
     // 更新 A4 页数
     PAGE_NUM.value = pageNum;
+
+    // 调整 A4 容器高度
+    const containerHeight = PAGE_NUM.value * PAGE_HEIGHT + (PAGE_NUM.value - 1) * PAGE_GAP.value; // 计算新的 A4 高度
+    a4Container.style.height = `${containerHeight}px`; // 调整 A4 容器高度
 };
 
 onMounted(() => {
@@ -106,6 +110,6 @@ onBeforeUnmount(() => {
             </div>
         </div>
         <!--绘制 A4 边框-->
-        <Borders :page_num="PAGE_NUM" :page_gap="PAGE_GAP"></Borders>
+        <Borders :page-num="PAGE_NUM" :page-gap="PAGE_GAP" :page-height="PAGE_HEIGHT"></Borders>
     </div>
 </template>

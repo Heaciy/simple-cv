@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const BOTTOM_MARGIN = 64; // A4 到页面底部的边距 // TODO
-const props = defineProps<{ page_num: number, page_gap: number }>();
-const container_height = computed(() => props.page_num * 1123 + props.page_gap * (props.page_num - 1));
+const props = defineProps<{ pageNum: number, pageGap: number, pageHeight: number }>();
+const containerHeight = computed(() => props.pageNum * 1123 + props.pageGap * (props.pageNum - 1));
 </script>
 
 <template>
     <div class="flex flex-col w-full container print:hidden"
-        :style="{ height: `${container_height + BOTTOM_MARGIN}px`, gap: `${props.page_gap}px` }">
-        <div class="page" v-for="page in page_num" :key="page"></div>
+        :style="{ height: `${containerHeight}px`, gap: `${props.pageGap}px` }">
+        <div class="page" v-for="page in pageNum" :key="page"></div>
     </div>
 </template>
 
@@ -18,7 +17,6 @@ const container_height = computed(() => props.page_num * 1123 + props.page_gap *
     position: absolute;
     top: 0;
     z-index: -1;
-    margin-bottom: 64px;
 }
 
 .page {
