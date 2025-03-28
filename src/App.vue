@@ -1,35 +1,26 @@
 <script setup>
-import {onMounted, nextTick, ref, onBeforeMount, onBeforeUnmount} from 'vue';
+import {onMounted, nextTick, ref, onBeforeMount, onBeforeUnmount, watchEffect, watch} from 'vue';
 import CV from './components/CV.vue';
 import Borders from "@/components/Borders.vue";
 
 const PAGE_HEIGHT = 1123; // A4 纸高度
-let PAGE_GAP = 32; // A4 页面之间的间隔 // FIXME: 在打印时应该为0
-const TOP_MARGIN = 64; // A4 页面的顶部边距
+const TOP_MARGIN = 64;    // A4 页面的顶部边距
 const BOTTOM_MARGIN = 64; // A4 页面的底部边距
-const PAGE_NUM = ref(1); // A4 页面的数量
+const PAGE_NUM = ref(1);  // A4 页面的数量
+const PAGE_GAP = ref(32); // A4 页面之间的间隔
 
 function addPageGap() {
-    PAGE_GAP = 0;
-    adjustMargins();
+    // 去除页面之间的间隔
+    PAGE_GAP.value = 0;
 }
 
 function removePageGap() {
-    PAGE_GAP = 32;
-    adjustMargins();
+    // 增加页面之间的间隔
+    PAGE_GAP.value = 32;
 }
 
-onBeforeMount(() => {
-    window.addEventListener("beforeprint", addPageGap);
-    window.addEventListener("afterprint", removePageGap);
-})
-
-onBeforeUnmount(() => {
-    window.removeEventListener("beforeprint", addPageGap);
-    window.removeEventListener("afterprint", removePageGap);
-})
-
 const adjustMargins = () => {
+    // 实现自动分页效果
     const elements = document.querySelectorAll(".page-break"); // 获取所有分页元素
     const a4Container = document.querySelector(".a4");
 
@@ -57,8 +48,8 @@ const adjustMargins = () => {
         // 检查是否跨页
         if (elTopHeight > bottomlineHeight) {
             // 上边界跨在分隔区：调整 margin-top 让它对齐到下一个 A4 页面顶部
-            marginOffset = BOTTOM_MARGIN + TOP_MARGIN - (elTopHeight - bottomlineHeight) + PAGE_GAP
-            currentPageStart += PAGE_HEIGHT + PAGE_GAP;
+            marginOffset = BOTTOM_MARGIN + TOP_MARGIN - (elTopHeight - bottomlineHeight) + PAGE_GAP.value
+            currentPageStart += PAGE_HEIGHT + PAGE_GAP.value;
             pageNum += 1;
         } else if (elBottomHeight > bottomlineHeight) {
             // 下边界跨在分隔区：判断是否真的需要分页
@@ -67,8 +58,8 @@ const adjustMargins = () => {
 
             // 只有当超出部分比留在当前页的部分大时或超出过多时，才换页
             if (bottomPartHeight >= topPartHeight || bottomPartHeight >= BOTTOM_MARGIN / 2) {
-                marginOffset = bottomlineHeight - elTopHeight + BOTTOM_MARGIN + TOP_MARGIN + PAGE_GAP
-                currentPageStart += PAGE_HEIGHT + PAGE_GAP;
+                marginOffset = bottomlineHeight - elTopHeight + BOTTOM_MARGIN + TOP_MARGIN + PAGE_GAP.value
+                currentPageStart += PAGE_HEIGHT + PAGE_GAP.value;
                 pageNum += 1;
             }
         }
@@ -86,6 +77,18 @@ onMounted(() => {
         adjustMargins();
     });
 });
+
+watch(PAGE_GAP, adjustMargins);
+
+onBeforeMount(() => {
+    window.addEventListener("beforeprint", addPageGap);
+    window.addEventListener("afterprint", removePageGap);
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener("beforeprint", addPageGap);
+    window.removeEventListener("afterprint", removePageGap);
+})
 </script>
 
 <template>
