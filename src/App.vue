@@ -1,13 +1,33 @@
 <script setup>
-import {onMounted, nextTick, ref} from 'vue';
+import {onMounted, nextTick, ref, onBeforeMount, onBeforeUnmount} from 'vue';
 import CV from './components/CV.vue';
 import Borders from "@/components/Borders.vue";
 
 const PAGE_HEIGHT = 1123; // A4 纸高度
-const PAGE_GAP = 32; // A4 页面之间的间隔 // FIXME: 在打印时应该为0
+let PAGE_GAP = 32; // A4 页面之间的间隔 // FIXME: 在打印时应该为0
 const TOP_MARGIN = 64; // A4 页面的顶部边距
 const BOTTOM_MARGIN = 64; // A4 页面的底部边距
-const page_num = ref(1); // A4 页面的数量
+const PAGE_NUM = ref(1); // A4 页面的数量
+
+function addPageGap() {
+    PAGE_GAP = 0;
+    adjustMargins();
+}
+
+function removePageGap() {
+    PAGE_GAP = 32;
+    adjustMargins();
+}
+
+onBeforeMount(() => {
+    window.addEventListener("beforeprint", addPageGap);
+    window.addEventListener("afterprint", removePageGap);
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener("beforeprint", addPageGap);
+    window.removeEventListener("afterprint", removePageGap);
+})
 
 const adjustMargins = () => {
     const elements = document.querySelectorAll(".page-break"); // 获取所有分页元素
@@ -16,7 +36,14 @@ const adjustMargins = () => {
     if (!elements.length || !a4Container) return;
 
     let currentPageStart = 0; // A4 当前页起点
+    let pageNum = 1; // 初始 A4 页数
 
+    // 每次重新调整前还原初始 Margin 值
+    elements.forEach((el, index) => {
+        el.style.setProperty("--page-margin", `${0}px`);
+    })
+
+    // 重新计算 Margin
     elements.forEach((el, index) => {
         let marginOffset = 0;
         const elTop = el.offsetTop; // 获取当前元素的顶部位置
@@ -32,7 +59,7 @@ const adjustMargins = () => {
             // 上边界跨在分隔区：调整 margin-top 让它对齐到下一个 A4 页面顶部
             marginOffset = BOTTOM_MARGIN + TOP_MARGIN - (elTopHeight - bottomlineHeight) + PAGE_GAP
             currentPageStart += PAGE_HEIGHT + PAGE_GAP;
-            page_num.value += 1;
+            pageNum += 1;
         } else if (elBottomHeight > bottomlineHeight) {
             // 下边界跨在分隔区：判断是否真的需要分页
             const topPartHeight = bottomlineHeight - elTopHeight;
@@ -42,13 +69,16 @@ const adjustMargins = () => {
             if (bottomPartHeight >= topPartHeight || bottomPartHeight >= BOTTOM_MARGIN / 2) {
                 marginOffset = bottomlineHeight - elTopHeight + BOTTOM_MARGIN + TOP_MARGIN + PAGE_GAP
                 currentPageStart += PAGE_HEIGHT + PAGE_GAP;
-                page_num.value += 1;
+                pageNum += 1;
             }
         }
         // 避免 marginOffset 负值
         marginOffset = Math.max(0, marginOffset);
         el.style.setProperty("--page-margin", `${marginOffset}px`);
     });
+
+    // 更新 A4 页数
+    PAGE_NUM.value = pageNum;
 };
 
 onMounted(() => {
@@ -64,7 +94,7 @@ onMounted(() => {
             <CV></CV>
         </div>
         <!--绘制 A4 边框-->
-        <Borders :page_num="page_num" :page_gap="PAGE_GAP"></Borders>
+        <Borders :page_num="PAGE_NUM" :page_gap="PAGE_GAP"></Borders>
     </div>
 </template>
 
