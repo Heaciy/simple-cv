@@ -12,12 +12,12 @@ const BOTTOM_MARGIN = 64; // A4 页面的底部边距
 const PAGE_NUM = ref(1);  // A4 页面的数量
 const PAGE_GAP = ref(32); // A4 页面之间的间隔
 
-function addPageGap() {
+function removePageGap() {
     // 去除页面之间的间隔
     PAGE_GAP.value = 0;
 }
 
-function removePageGap() {
+function addPageGap() {
     // 增加页面之间的间隔
     PAGE_GAP.value = 32;
 }
@@ -88,13 +88,13 @@ onMounted(() => {
 watch(PAGE_GAP, adjustMargins);
 
 onBeforeMount(() => {
-    window.addEventListener("beforeprint", addPageGap);
-    window.addEventListener("afterprint", removePageGap);
+    window.addEventListener("beforeprint", removePageGap);
+    window.addEventListener("afterprint", addPageGap);
 })
 
 onBeforeUnmount(() => {
-    window.removeEventListener("beforeprint", addPageGap);
-    window.removeEventListener("afterprint", removePageGap);
+    window.removeEventListener("beforeprint", removePageGap);
+    window.removeEventListener("afterprint", addPageGap);
 })
 
 </script>
