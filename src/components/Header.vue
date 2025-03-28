@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type Header, LineType} from "@/type";
+import { type Header, LineType } from "@/type";
 import Line from "./Line.vue";
 
 const props = defineProps<{ header: Header }>();
